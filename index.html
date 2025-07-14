@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+  <h2>Latihan Membuat Formulir Susah Euy Baru Juga Mulai</h2>
+  <form id="form-data">
+    <label>Nama:</label>
+    <input type="text" name="nama" id="nama" placeholder="Masukkan Nama Anda" /> <br><br>
+
+    <label>Umur:</label>
+    <input type="number" name="umur" id="umur" placeholder="Masukkan Umur Anda" /> <br><br>
+
+    <label>Apakah Kamu Mahasiswa:</label><br>
+    <input type="radio" name="status-mahasiswa" value="true"> Ya<br>
+    <input type="radio" name="status-mahasiswa" value="false"> Tidak<br><br>
+
+    
+   <!-- // div ini berguna supaya dia menampilkan list hobby dalam 1 tempat -->
+    <label for="hobi">Hobi:</label>
+    <div id="tempat-hobi"> 
+      <div><input type="text" name="hobi" class="hobi-input" placeholder="Sebutkan Hobi Anda" /></div>
+    </div>
+    <button type="button" id="tombol-tambah-hobi">Tambah Hobi</button><br><br>
+
+    <label>Pekerjaan:</label>
+    <input type="text" name="pekerjaan" id="pekerjaan" placeholder="Apa Pekerjaan Anda" /><br><br>
+
+    <label>Alamat:</label>
+    <input type="text" name="alamat" id="alamat" placeholder="Masukkan Alamat Anda" /><br><br>
+
+    <button type="submit">Submit</button>
+    <button type="button" id="reset">Reset</button>
+  </form>
+
+  <h3>Hasilnya di bawah ini:</h3>
+  <div id="hasil"></div>
+
+  <script>
+    //Mulai dari bikin wadah-wadah duluu
+    const form = document.getElementById("form-data");
+    const namaInput = document.getElementById("nama");
+    const umurInput = document.getElementById("umur");
+    const tempatHobi = document.getElementById("tempat-hobi"); // yg ini nih, bakal paham kalau udah baca sampai bawah wkwk
+    const tombolTambahHobi = document.getElementById("tombol-tambah-hobi");
+    const pekerjaanInput = document.getElementById("pekerjaan");
+    const alamatInput = document.getElementById("alamat");
+    const hasilDiv = document.getElementById("hasil");
+    const tombolReset = document.getElementById("reset");
+
+    // Mulai pusing urus fungsi button, button hobi dulu
+    tombolTambahHobi.addEventListener("click", function () {
+      const pembungkus = document.createElement("div");
+      const inputHobiBaru = document.createElement("input"); 
+      inputHobiBaru.type = "text"; // buat yg kalau di htmml type="text"
+      inputHobiBaru.name = "hobi"; // sama dah kaya yg atas
+      inputHobiBaru.className = "hobi-input";
+      inputHobiBaru.placeholder = "Sebutkan Hobi Anda";
+      pembungkus.appendChild(inputHobiBaru); // masukin input hobi baru ke pembungkus
+      tempatHobi.appendChild(pembungkus); // masukin pembungkus diatas tadi ke tempatHobi, fyi tempatHobi ini nama variabel yg utama diatas
+    });
+
+    // button submit kalau ini
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const nama = namaInput.value.trim(); // trim ini motong spasi kanan kiri
+      const umur = parseInt(umurInput.value.trim()); // parseInt buat validasi kalau ini angka integral bilangan bulat
+
+      const statusRadio = document.querySelector('input[name="status-mahasiswa"]:checked'); // cari yang dipilih, tampilkan itu doang
+      const statusMahasiswa = statusRadio ? (statusRadio.value === "True" ? "Ya, saya Mahasiswa" : "Tidak, Sudah Lulus") : false;
+
+      const hobiInputs = document.querySelectorAll('input[name="hobi"]'); // ambil semua hobi yg bertipe input dan namenya "hobi"
+      const hobi = Array.from(hobiInputs) // dibikin jadi array - tapi masih jadi elemen html
+        .map(h => h.value.trim()) // mapping buat ambil value dari elemen html tadi dan di trim
+        .filter(h => h !== ""); // filter untuk tidak memasukan yang kosong
+
+      const pekerjaan = null;
+      const alamat = undefined;
+
+      // Gas Validasi
+      if (nama === "") {
+        alert("Nama tidak boleh kosong");
+        return;
+      } 
+      // NaN ni biasanya kalau bukan angka.
+      if (isNaN(umur)) {
+        alert("Umur harus diisi dan berupa angka");
+        return;
+      }
+      //ngasih validasi dengan ngitung berapa jumlah hobi yg ada, gaboleh kosong
+      if (hobi.length === 0) {
+        alert("Minimal satu hobi harus diisi");
+        return;
+      }
+
+    // siap siap tampilin hasilnya
+      const data = {
+        nama: nama,
+        umur: umur,
+        mahasiswa: statusMahasiswa,
+        hobi: hobi,
+        pekerjaan: pekerjaan,
+        alamat: alamat,
+        jumlahHobi: hobi.length
+      };
+      // ini pake JSON text (iar bisa keliatan bukan di console log lagi) buat ambil variable data, dan tampilkan semua dengan ident spasi 2 (kalau 0 nanti soalnya gajadi ada linebreak), gitu la kurang lebih ceunah
+      hasilDiv.innerText = JSON.stringify(data, null, 2);
+    });
+
+    tombolReset.addEventListener("click", function () {
+      // yang gampang-gampang dulu ges
+      namaInput.value = "";
+      umurInput.value = "";
+      pekerjaanInput.value = "";
+      alamatInput.value = "";
+
+      //yang ini treatmennya agak beda karena harus menghapus yg sudah di checked untuk mengembalikan ke state awal / jadi kosong semua 
+      const radioButtons = document.querySelectorAll('input[name="status-mahasiswa"]');
+      radioButtons.forEach(rb => rb.checked = false);
+      
+      // kalau ini harus dikembalikan ke posisi dimana ada 1 input field lagi  
+      const allHobi = document.querySelectorAll('input[name="hobi"]');
+      allHobi.forEach((input, index) => {
+        if (index === 0) {
+          input.value = "";
+        } else {
+          input.parentElement.remove();
+        }
+      });
+
+      //Balikin/reset juga hasil yang dibawahnya 
+      hasilDiv.innerText = "";
+    });
+  </script>
+</body>
+</html>
